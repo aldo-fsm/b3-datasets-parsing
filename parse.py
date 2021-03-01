@@ -1,7 +1,7 @@
 import fire
 import re
 import os
-from utils import PARSE_TABLE, parseField
+from utils import PARSE_TABLE, getFieldParser
 import numpy as np
 import pandas as pd
 import re
@@ -52,7 +52,7 @@ def toDataFrame(lines) -> DataFrame:
 
     print('Parsing fields...')
     for i, field in tqdm(list(PARSE_TABLE.iterrows())):
-        df[field.fieldName] = parseField(field.fieldName, field.type, df[field.fieldName].values)
+        df[field.fieldName] = df[field.fieldName].apply(getFieldParser(field.fieldName, field.type))
 
     return df
 
