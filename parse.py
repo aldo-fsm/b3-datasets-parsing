@@ -19,11 +19,12 @@ def toCsv(inputPath: str, outputPath: str):
     fileName = inputPath.split('/')[-1].strip()
     outputPath = outputPath.strip()
     if os.path.isdir(outputPath):
-        outputFileName = re.sub('\.\w+$', '.csv', fileName)
+        filenameWithoutExtension = re.sub(r'\.txt$', '', fileName, flags=re.IGNORECASE)
+        outputFileName = f'{filenameWithoutExtension}.csv'
         outputPath = os.path.join(outputPath, outputFileName)
     if os.path.isfile(outputPath): raise FileExistsError()
     
-    with open(inputPath) as f:
+    with open(inputPath, encoding='ISO-8859-1') as f:
         lines = f.readlines()
 
     parsed = toDataFrame(lines)
@@ -31,6 +32,29 @@ def toCsv(inputPath: str, outputPath: str):
     print('shape:', parsed.shape)
     print(f'Writing to {outputPath}')
     parsed.to_csv(outputPath)
+
+def toParquet(inputPath: str, outputPath: str):
+    """
+    Convert dataset from "inputPath" to parquet and save it into "outputPath"
+    :param inputPath: path to raw dataset to be parsed
+    :param outputPath: target path to save resulting file
+    """
+    fileName = inputPath.split('/')[-1].strip()
+    outputPath = outputPath.strip()
+    if os.path.isdir(outputPath):
+        filenameWithoutExtension = re.sub(r'\.txt$', '', fileName, flags=re.IGNORECASE)
+        outputFileName = f'{filenameWithoutExtension}.parquet'
+        outputPath = os.path.join(outputPath, outputFileName)
+    if os.path.isfile(outputPath): raise FileExistsError()
+    
+    with open(inputPath, encoding='ISO-8859-1') as f:
+        lines = f.readlines()
+
+    parsed = toDataFrame(lines)
+    print('DataFrame parsed')
+    print('shape:', parsed.shape)
+    print(f'Writing to {outputPath}')
+    parsed.to_parquet(outputPath)
 
 def toDataFrame(lines) -> DataFrame:
     print('Creating char matrix...')
@@ -58,5 +82,6 @@ def toDataFrame(lines) -> DataFrame:
 
 if __name__ == "__main__":
     fire.Fire({
-        "to-csv": toCsv
+        "to-csv": toCsv,
+        "to-parquet": toParquet,
     })
